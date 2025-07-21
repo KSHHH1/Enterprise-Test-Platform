@@ -1,0 +1,35 @@
+{
+  "name": "tk8620-web-test-system",
+  "version": "1.0.0",
+  "description": "TK8620 Web测试系统 - MCP集成支持",
+  "main": "index.js",
+  "scripts": {
+    "install-mcp": "npm install",
+    "start-mcp": "node mcp_server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mcp",
+    "testing",
+    "automation",
+    "tk8620"
+  ],
+  "author": "Enterprise Test Platform",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@modelcontextprotocol/server-filesystem": "^1.0.0",
+    "@modelcontextprotocol/server-git": "^1.0.0",
+    "@modelcontextprotocol/server-memory": "^1.0.0",
+    "@executeautomation/mcp-playwright": "^1.0.0",
+    "mcp-alchemy": "^1.0.0",
+    "fetch-mcp": "^1.0.0",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "sqlite3": "^5.1.6",
+    "playwright": "^1.40.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

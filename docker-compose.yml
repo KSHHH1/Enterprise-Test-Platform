@@ -1,0 +1,47 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8088:8000" # Map host 8088 to gunicorn port 8000 inside container
+    environment:
+      - DATABASE_URL=postgresql://etp_user:etp_password@db:5432/etp_db
+      - REDIS_URL=redis://redis:6379/0
+      - FLASK_APP=manage.py
+      - SECRET_KEY=a_very_secret_key_that_should_be_changed
+      - SHARED_PASSWORD=123456
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    entrypoint: ""
+    command: gunicorn --bind 0.0.0.0:8000 --workers 4 "test_platform.app:create_app()"
+    volumes:
+      - migrations_volume:/app/migrations
+      - ./test_platform:/app/test_platform
+
+  db:
+    image: postgres:14-alpine
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_DB: etp_db
+      POSTGRES_USER: etp_user
+      POSTGRES_PASSWORD: etp_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U etp_user -d etp_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:6.2-alpine
+    restart: always
+
+volumes:
+  postgres_data:
+  migrations_volume: 

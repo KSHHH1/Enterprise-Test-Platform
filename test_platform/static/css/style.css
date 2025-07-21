@@ -1,0 +1,111 @@
+/* 全局样式 */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* 登录页面容器 */
+.login-container {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 100%;
+    max-width: 360px;
+}
+
+.login-container h2 {
+    margin-bottom: 1.5rem;
+}
+
+.login-container input[type="password"],
+.login-container button {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    box-sizing: border-box; /* Important for consistent sizing */
+}
+
+.login-container button {
+    background-color: #007bff;
+}
+
+/* 弹窗样式 */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+}
+
+/* 仪表盘布局 */
+header {
+    background-color: #fff;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+main {
+    padding: 2rem;
+}
+
+#nodes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+/* 节点卡片样式 */
+.node-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    border-left: 5px solid;
+}
+.node-card.available { border-color: #2ecc71; /* 绿色 */ }
+.node-card.busy { border-color: #f39c12; /* 黄色 */ }
+.node-card.offline { border-color: #e74c3c; /* 红色 */ }
+
+.node-card .status { font-weight: bold; }
+.node-card.available .status { color: #2ecc71; }
+.node-card.busy .status { color: #f39c12; }
+.node-card.offline .status { color: #e74c3c; }
+
+/* 日志查看器 */
+#log-viewer {
+    margin-top: 2rem;
+}
+#log-container {
+    background: #2c3e50;
+    color: #ecf0f1;
+    height: 300px;
+    overflow-y: scroll;
+    padding: 1rem;
+    border-radius: 4px;
+    font-family: "Courier New", Courier, monospace;
+} 

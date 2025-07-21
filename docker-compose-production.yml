@@ -1,0 +1,77 @@
+services:
+  # 主Web服务 (包含原有功能)
+  web:
+    build: .
+    ports:
+      - "8088:8000"  # 外部访问端口
+    environment:
+      - DATABASE_URL=postgresql://etp_user:etp_password@db:5432/etp_db
+      - REDIS_URL=redis://redis:6379/0
+      - FLASK_APP=manage.py
+      - SECRET_KEY=a_very_secret_key_that_should_be_changed
+      - SHARED_PASSWORD=123456
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    command: gunicorn --bind 0.0.0.0:8000 --workers 4 "test_platform.app:create_app()"
+    volumes:
+      - migrations_volume:/app/migrations
+      - ./test_platform:/app/test_platform
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 中心API服务 (新增)
+  center-api:
+    build: .
+    ports:
+      - "5000:5000"  # center_api.py 的端口
+    command: python agent/center_api.py
+    volumes:
+      - ./agent:/app/agent
+      - ./test_platform/static:/app/test_platform/static
+    restart: unless-stopped
+    depends_on:
+      - web
+
+  # 数据库
+  db:
+    image: postgres:14-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: etp_db
+      POSTGRES_USER: etp_user
+      POSTGRES_PASSWORD: etp_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U etp_user -d etp_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis缓存
+  redis:
+    image: redis:6.2-alpine
+    restart: always
+
+  # Nginx反向代理 (可选，用于生产环境)
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx-production.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - web
+      - center-api
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  migrations_volume:

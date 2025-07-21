@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>企业测试平台 - 登录验证</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 400px;
+            max-width: 90vw;
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .login-header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .login-form {
+            padding: 40px 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message {
+            background: #efe;
+            color: #3c3;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .device-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .device-info h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .device-info p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .quick-access {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e5e9;
+            text-align: center;
+        }
+
+        .quick-btn {
+            background: #f8f9fa;
+            border: 1px solid #e1e5e9;
+            border-radius: 5px;
+            padding: 8px 16px;
+            margin: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 12px;
+        }
+
+        .quick-btn:hover {
+            background: #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>🔧 企业测试平台</h1>
+            <p>请输入访问密码</p>
+        </div>
+        
+        <div class="login-form">
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+            
+            <div class="device-info" id="deviceInfo">
+                <h3>设备信息</h3>
+                <p id="deviceId">设备ID: 正在获取...</p>
+                <p id="userAgent">浏览器: 正在检测...</p>
+                <p id="assignedUser">分配用户: 正在分配...</p>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="password">访问密码</label>
+                    <input type="password" id="password" name="password" required placeholder="请输入访问密码" value="123456">
+                </div>
+                
+                <button type="submit" class="login-btn" id="loginBtn">
+                    进入系统
+                </button>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    正在验证...
+                </div>
+            </form>
+            
+
+        </div>
+    </div>
+
+    <script>
+        let deviceFingerprint = '';
+        let assignedUserId = '';
+        
+        // 生成设备指纹
+        function generateDeviceFingerprint() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillText('Device fingerprint', 2, 2);
+            
+            const fingerprint = [
+                navigator.userAgent,
+                navigator.language,
+                screen.width + 'x' + screen.height,
+                new Date().getTimezoneOffset(),
+                canvas.toDataURL(),
+                navigator.hardwareConcurrency || 'unknown',
+                navigator.deviceMemory || 'unknown'
+            ].join('|');
+            
+            // 生成简短的哈希
+            let hash = 0;
+            for (let i = 0; i < fingerprint.length; i++) {
+                const char = fingerprint.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // 转换为32位整数
+            }
+            
+            return Math.abs(hash).toString(36).toUpperCase();
+        }
+        
+        // 生成用户ID
+        function generateUserId(fingerprint) {
+            const prefix = 'USER';
+            const suffix = fingerprint.slice(-6);
+            return `${prefix}_${suffix}`;
+        }
+        
+        // 显示设备信息
+        function updateDeviceInfo() {
+            deviceFingerprint = generateDeviceFingerprint();
+            assignedUserId = generateUserId(deviceFingerprint);
+            
+            document.getElementById('deviceId').textContent = `设备ID: ${deviceFingerprint}`;
+            document.getElementById('userAgent').textContent = `浏览器: ${navigator.userAgent.split(' ')[0]}`;
+            document.getElementById('assignedUser').textContent = `分配用户: ${assignedUserId}`;
+        }
+        
+        // 显示错误信息
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        // 显示成功信息
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 3000);
+        }
+        
+        // 显示加载状态
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+            document.getElementById('loginBtn').disabled = show;
+        }
+        
+        // 登录验证
+        async function login(password) {
+            showLoading(true);
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        password: password,
+                        device_fingerprint: deviceFingerprint,
+                        user_id: assignedUserId,
+                        user_agent: navigator.userAgent,
+                        screen_resolution: `${screen.width}x${screen.height}`
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // 保存用户信息到localStorage
+                    localStorage.setItem('userInfo', JSON.stringify({
+                        user_id: result.user_id,
+                        user_name: result.user_name,
+                        device_fingerprint: deviceFingerprint,
+                        login_time: new Date().toISOString(),
+                        client_ip: result.client_ip
+                    }));
+                    
+                    showSuccess(`欢迎 ${result.user_name}！正在跳转...`);
+                    
+                    // 延迟跳转，让用户看到欢迎信息
+                    setTimeout(() => {
+                        window.location.href = 'web_interface.html';
+                    }, 1500);
+                } else {
+                    showError(result.error || '密码错误，请重试');
+                }
+            } catch (error) {
+                console.error('登录错误:', error);
+                showError('网络连接失败，请检查服务器状态');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+
+        
+        // 表单提交处理
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const password = document.getElementById('password').value;
+            
+            if (!password) {
+                showError('请输入访问密码');
+                return;
+            }
+            
+            login(password);
+        });
+        
+        // 检查是否已经登录
+        window.addEventListener('load', function() {
+            // 首先更新设备信息
+            updateDeviceInfo();
+            
+            const userInfo = localStorage.getItem('userInfo');
+            if (userInfo) {
+                try {
+                    const user = JSON.parse(userInfo);
+                    // 检查登录是否过期（24小时）
+                    const loginTime = new Date(user.login_time);
+                    const now = new Date();
+                    const hoursDiff = (now - loginTime) / (1000 * 60 * 60);
+                    
+                    if (hoursDiff < 24 && user.device_fingerprint === deviceFingerprint) {
+                        // 验证服务器端会话状态
+                        verifyServerSession();
+                        return;
+                    }
+                } catch (e) {
+                    console.error('解析用户信息失败:', e);
+                }
+                
+                // 清除过期或无效的登录信息
+                localStorage.removeItem('userInfo');
+            }
+        });
+        
+        // 验证服务器端会话状态
+        async function verifyServerSession() {
+            try {
+                const response = await fetch('/api/user_info');
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        // 服务器端会话有效，直接跳转
+                        showSuccess('检测到有效登录，正在跳转...');
+                        setTimeout(() => {
+                            window.location.href = 'web_interface.html';
+                        }, 1000);
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.log('服务器端会话验证失败:', error);
+            }
+            
+            // 服务器端会话无效，清除本地存储
+            localStorage.removeItem('userInfo');
+            console.log('服务器端会话已失效，已清除本地登录信息');
+        }
+        
+        // 回车键快速登录
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>

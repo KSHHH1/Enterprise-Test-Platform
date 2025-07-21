@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>独立开关测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+        
+        .switch-container {
+            margin: 30px 0;
+        }
+        
+        .switch-label {
+            display: block;
+            margin-bottom: 15px;
+            font-size: 16px;
+            color: #666;
+        }
+        
+        /* 滑动开关样式 */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 80px;
+            height: 40px;
+            background: #ccc;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid #ddd;
+            margin: 10px;
+        }
+        
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: white;
+            top: 4px;
+            left: 4px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        
+        .toggle-switch.active {
+            background: #4CAF50;
+            border-color: #45a049;
+        }
+        
+        .toggle-switch.active::before {
+            transform: translateX(40px);
+        }
+        
+        /* 按钮开关样式 */
+        .button-switch {
+            display: inline-block;
+            width: 100px;
+            height: 40px;
+            background: linear-gradient(145deg, #f0f0f0, #d0d0d0);
+            border: 3px solid #999;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px;
+        }
+        
+        .button-switch:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+        
+        .button-switch.active {
+            background: linear-gradient(145deg, #4CAF50, #45a049);
+            color: white;
+            border-color: #45a049;
+        }
+        
+        .button-switch:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        /* 圆形开关样式 */
+        .circle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            background: #f0f0f0;
+            border: 4px solid #ddd;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        
+        .circle-switch::before {
+            content: '○';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: #999;
+            transition: all 0.3s ease;
+        }
+        
+        .circle-switch:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .circle-switch.active {
+            background: #4CAF50;
+            border-color: #45a049;
+        }
+        
+        .circle-switch.active::before {
+            content: '●';
+            color: white;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .status-text {
+            font-size: 14px;
+            color: #333;
+            margin: 5px 0;
+        }
+        
+        .reset-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s ease;
+        }
+        
+        .reset-btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔘 开关控件测试</h1>
+        <p style="color: #666; margin-bottom: 30px;">测试不同样式的开关控件</p>
+        
+        <div class="switch-container">
+            <label class="switch-label">滑动开关</label>
+            <div class="toggle-switch" id="toggleSwitch" onclick="toggleSwitch1()"></div>
+        </div>
+        
+        <div class="switch-container">
+            <label class="switch-label">按钮开关</label>
+            <div class="button-switch" id="buttonSwitch" onclick="toggleSwitch2()">OFF</div>
+        </div>
+        
+        <div class="switch-container">
+            <label class="switch-label">圆形开关</label>
+            <div class="circle-switch" id="circleSwitch" onclick="toggleSwitch3()"></div>
+        </div>
+        
+        <div class="status">
+            <div class="status-text">滑动开关状态: <span id="status1">关闭</span></div>
+            <div class="status-text">按钮开关状态: <span id="status2">关闭</span></div>
+            <div class="status-text">圆形开关状态: <span id="status3">关闭</span></div>
+        </div>
+        
+        <button class="reset-btn" onclick="resetAll()">重置所有开关</button>
+    </div>
+    
+    <script>
+        // 滑动开关
+        function toggleSwitch1() {
+            const switchEl = document.getElementById('toggleSwitch');
+            const statusEl = document.getElementById('status1');
+            
+            if (switchEl.classList.contains('active')) {
+                switchEl.classList.remove('active');
+                statusEl.textContent = '关闭';
+                statusEl.style.color = '#dc3545';
+                console.log('滑动开关: 关闭');
+            } else {
+                switchEl.classList.add('active');
+                statusEl.textContent = '开启';
+                statusEl.style.color = '#28a745';
+                console.log('滑动开关: 开启');
+            }
+        }
+        
+        // 按钮开关
+        function toggleSwitch2() {
+            const switchEl = document.getElementById('buttonSwitch');
+            const statusEl = document.getElementById('status2');
+            
+            if (switchEl.classList.contains('active')) {
+                switchEl.classList.remove('active');
+                switchEl.textContent = 'OFF';
+                statusEl.textContent = '关闭';
+                statusEl.style.color = '#dc3545';
+                console.log('按钮开关: 关闭');
+            } else {
+                switchEl.classList.add('active');
+                switchEl.textContent = 'ON';
+                statusEl.textContent = '开启';
+                statusEl.style.color = '#28a745';
+                console.log('按钮开关: 开启');
+            }
+        }
+        
+        // 圆形开关
+        function toggleSwitch3() {
+            const switchEl = document.getElementById('circleSwitch');
+            const statusEl = document.getElementById('status3');
+            
+            if (switchEl.classList.contains('active')) {
+                switchEl.classList.remove('active');
+                statusEl.textContent = '关闭';
+                statusEl.style.color = '#dc3545';
+                console.log('圆形开关: 关闭');
+            } else {
+                switchEl.classList.add('active');
+                statusEl.textContent = '开启';
+                statusEl.style.color = '#28a745';
+                console.log('圆形开关: 开启');
+            }
+        }
+        
+        // 重置所有开关
+        function resetAll() {
+            // 重置滑动开关
+            document.getElementById('toggleSwitch').classList.remove('active');
+            document.getElementById('status1').textContent = '关闭';
+            document.getElementById('status1').style.color = '#dc3545';
+            
+            // 重置按钮开关
+            const buttonSwitch = document.getElementById('buttonSwitch');
+            buttonSwitch.classList.remove('active');
+            buttonSwitch.textContent = 'OFF';
+            document.getElementById('status2').textContent = '关闭';
+            document.getElementById('status2').style.color = '#dc3545';
+            
+            // 重置圆形开关
+            document.getElementById('circleSwitch').classList.remove('active');
+            document.getElementById('status3').textContent = '关闭';
+            document.getElementById('status3').style.color = '#dc3545';
+            
+            console.log('所有开关已重置');
+        }
+        
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('开关测试页面加载完成');
+            
+            // 设置初始状态颜色
+            document.getElementById('status1').style.color = '#dc3545';
+            document.getElementById('status2').style.color = '#dc3545';
+            document.getElementById('status3').style.color = '#dc3545';
+        });
+    </script>
+</body>
+</html>

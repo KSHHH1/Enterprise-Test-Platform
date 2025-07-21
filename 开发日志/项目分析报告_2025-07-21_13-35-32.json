@@ -1,0 +1,336 @@
+{
+  "timestamp": "2025-07-21T13:35:32.192893",
+  "project_structure": {
+    "python_files": [
+      {
+        "path": "center_api.py",
+        "lines": 757
+      },
+      {
+        "path": "coverage_analyzer.py",
+        "lines": 357
+      },
+      {
+        "path": "manage.py",
+        "lines": 13
+      },
+      {
+        "path": "new_agent.py",
+        "lines": 895
+      },
+      {
+        "path": "project_assistant.py",
+        "lines": 197
+      },
+      {
+        "path": "backup_archive\\agent.py",
+        "lines": 480
+      },
+      {
+        "path": "backup_archive\\basic_test.py",
+        "lines": 210
+      },
+      {
+        "path": "backup_archive\\center_api.py",
+        "lines": 534
+      },
+      {
+        "path": "backup_archive\\enhanced_basic_test.py",
+        "lines": 200
+      },
+      {
+        "path": "backup_archive\\loopback_test.py",
+        "lines": 270
+      },
+      {
+        "path": "backup_archive\\realtime_basic_test.py",
+        "lines": 209
+      },
+      {
+        "path": "backup_archive\\test_demo.py",
+        "lines": 114
+      },
+      {
+        "path": "backup_archive\\tk8620_comprehensive_test.py",
+        "lines": 411
+      },
+      {
+        "path": "enterprise_platform\\__init__.py",
+        "lines": 29
+      },
+      {
+        "path": "enterprise_platform\\config\\settings.py",
+        "lines": 108
+      },
+      {
+        "path": "enterprise_platform\\config\\__init__.py",
+        "lines": 6
+      },
+      {
+        "path": "enterprise_platform\\core\\machine_manager.py",
+        "lines": 351
+      },
+      {
+        "path": "enterprise_platform\\core\\__init__.py",
+        "lines": 7
+      },
+      {
+        "path": "enterprise_platform\\core\\agent\\agent_api.py",
+        "lines": 149
+      },
+      {
+        "path": "enterprise_platform\\core\\agent\\agent_core.py",
+        "lines": 229
+      },
+      {
+        "path": "enterprise_platform\\core\\agent\\__init__.py",
+        "lines": 7
+      },
+      {
+        "path": "enterprise_platform\\core\\center\\center_api.py",
+        "lines": 690
+      },
+      {
+        "path": "enterprise_platform\\core\\center\\center_core.py",
+        "lines": 496
+      },
+      {
+        "path": "enterprise_platform\\core\\center\\__init__.py",
+        "lines": 7
+      },
+      {
+        "path": "enterprise_platform\\models\\__init__.py",
+        "lines": 127
+      },
+      {
+        "path": "enterprise_platform\\utils\\file_utils.py",
+        "lines": 142
+      },
+      {
+        "path": "enterprise_platform\\utils\\logger.py",
+        "lines": 65
+      },
+      {
+        "path": "enterprise_platform\\utils\\network.py",
+        "lines": 166
+      },
+      {
+        "path": "enterprise_platform\\utils\\serial_utils.py",
+        "lines": 102
+      },
+      {
+        "path": "enterprise_platform\\utils\\__init__.py",
+        "lines": 16
+      },
+      {
+        "path": "examples\\realtime_basic_test.py",
+        "lines": 259
+      },
+      {
+        "path": "examples\\test_demo.py",
+        "lines": 114
+      },
+      {
+        "path": "test_platform\\app.py",
+        "lines": 83
+      },
+      {
+        "path": "test_platform\\tasks.py",
+        "lines": 21
+      },
+      {
+        "path": "test_platform\\auth\\routes.py",
+        "lines": 49
+      },
+      {
+        "path": "test_platform\\auth\\services.py",
+        "lines": 102
+      },
+      {
+        "path": "test_platform\\auth\\__init__.py",
+        "lines": 5
+      },
+      {
+        "path": "test_platform\\core\\routes.py",
+        "lines": 20
+      },
+      {
+        "path": "test_platform\\core\\__init__.py",
+        "lines": 5
+      },
+      {
+        "path": "test_platform\\dashboard\\events.py",
+        "lines": 2
+      },
+      {
+        "path": "test_platform\\dashboard\\sockets.py",
+        "lines": 46
+      },
+      {
+        "path": "test_platform\\dashboard\\__init__.py",
+        "lines": 8
+      },
+      {
+        "path": "test_platform\\models\\device.py",
+        "lines": 17
+      },
+      {
+        "path": "test_platform\\models\\__init__.py",
+        "lines": 2
+      }
+    ],
+    "config_files": [
+      "docker-compose-production.yml",
+      "docker-compose-secure.yml",
+      "docker-compose.yml",
+      "machine_status.json",
+      "manual_hosts.json",
+      "nginx-production.conf",
+      "nginx.conf",
+      "package.json",
+      "supervisord.conf",
+      "backup_archive\\manual_hosts.json"
+    ],
+    "static_files": [
+      "login.html",
+      "web_interface.html",
+      "test_platform\\static\\index.html",
+      "test_platform\\static\\login.html",
+      "test_platform\\static\\simple_switch_test.html",
+      "test_platform\\static\\css\\style.css"
+    ],
+    "log_files": [
+      "logs\\agent_startup.log",
+      "logs\\center_startup.log",
+      "logs\\enterprise_platform.agent.log",
+      "logs\\enterprise_platform.agent_api.log",
+      "logs\\enterprise_platform.center.log",
+      "logs\\enterprise_platform.center_api.log",
+      "logs\\enterprise_platform.file.log",
+      "logs\\enterprise_platform.json_manager.manual_hosts.json.log",
+      "logs\\enterprise_platform.mcp.log",
+      "logs\\enterprise_platform.mcp_api.log",
+      "logs\\enterprise_platform.network.log",
+      "logs\\enterprise_platform.serial.log",
+      "logs\\enterprise_platform.test.log",
+      "logs\\mcp_demo.log",
+      "logs\\project_assistant.log"
+    ],
+    "total_lines": 8077
+  },
+  "database_status": null,
+  "api_endpoints": [
+    {
+      "file": "center_api.py",
+      "routes": [
+        "/",
+        "/web_interface.html",
+        "/login.html",
+        "/test-static",
+        "/api/hosts",
+        "/api/hosts",
+        "/api/hosts/<host_ip>",
+        "/api/discover",
+        "/api/hosts/<host_ip>/test",
+        "/api/hosts/<host_ip>/serials",
+        "/api/hosts/<host_ip>/cases",
+        "/api/hosts/<host_ip>/run_case",
+        "/api/hosts/<host_ip>/acquire",
+        "/api/hosts/<host_ip>/release",
+        "/api/hosts/<host_ip>/heartbeat",
+        "/api/hosts/<host_ip>/force_release",
+        "/vpn_test",
+        "/api/login",
+        "/api/logout",
+        "/api/machine_status",
+        "/api/user_info",
+        "/api/network_info",
+        "/api/host/<host_ip>/test_status/<test_id>",
+        "/api/host/<host_ip>/stop_test/<test_id>",
+        "/api/host/<host_ip>/manual_occupy",
+        "/api/host/<host_ip>/manual_release",
+        "/api/hosts/<host_ip>/switch",
+        "/api/hosts/<host_ip>/switch_status"
+      ]
+    },
+    {
+      "file": "new_agent.py",
+      "routes": [
+        "/",
+        "/serials",
+        "/api/serials",
+        "/cases",
+        "/api/cases",
+        "/run_case",
+        "/test_status/<test_id>",
+        "/test_logs/<test_id>",
+        "/running_tests",
+        "/stop_test/<test_id>",
+        "/info",
+        "/api/hosts",
+        "/health",
+        "/api/health",
+        "/api/status",
+        "/debug"
+      ]
+    },
+    {
+      "file": "backup_archive\\agent.py",
+      "routes": [
+        "/serials",
+        "/cases",
+        "/run_case",
+        "/test_status/<test_id>",
+        "/test_logs/<test_id>",
+        "/running_tests",
+        "/info",
+        "/health",
+        "/debug"
+      ]
+    },
+    {
+      "file": "backup_archive\\center_api.py",
+      "routes": [
+        "/api/hosts",
+        "/api/hosts/complete",
+        "/api/hosts",
+        "/api/host/<ip>",
+        "/api/host/<ip>",
+        "/api/network/debug",
+        "/api/host/<ip>/serials",
+        "/api/host/<ip>/cases",
+        "/api/host/<ip>/run_case",
+        "/",
+        "/index.html",
+        "/css/style.css",
+        "/<path:filename>",
+        "/api/test-connection/<ip>",
+        "/api/host/<ip>/test_status/<test_id>"
+      ]
+    },
+    {
+      "file": "test_platform\\app.py",
+      "routes": [
+        "/ping",
+        "/health"
+      ]
+    },
+    {
+      "file": "test_platform\\auth\\routes.py",
+      "routes": [
+        "/register",
+        "/login",
+        "/status"
+      ]
+    },
+    {
+      "file": "test_platform\\core\\routes.py",
+      "routes": [
+        "/",
+        "/login",
+        "/login.html",
+        "/index.html"
+      ]
+    }
+  ]
+}

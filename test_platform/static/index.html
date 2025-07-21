@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仪表盘 - 企业级测试平台</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            display: flex; 
+            height: 100vh; 
+            margin: 0; 
+            font-family: 'Microsoft YaHei', Arial, sans-serif; 
+            background: #f0f2f5;
+        }
+        
+        .sidebar { 
+            width: 300px; 
+            background: white; 
+            border-right: 1px solid #e8e8e8; 
+            padding: 20px; 
+            overflow-y: auto;
+        }
+        
+        .sidebar h2 { 
+            color: #1890ff;
+            margin-bottom: 20px; 
+            font-size: 18px;
+        }
+        
+        .controls {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .controls button {
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .controls button:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        
+        .host-list { 
+            list-style: none; 
+            padding: 0; 
+            margin: 0; 
+        }
+        
+        .host-item { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 12px; 
+            margin-bottom: 8px; 
+            border-radius: 6px; 
+            background: #fafafa; 
+            cursor: pointer; 
+            border: 1px solid #e8e8e8; 
+            transition: all 0.2s; 
+            position: relative;
+        }
+        
+        .host-item:hover {
+            border-color: #1890ff;
+            box-shadow: 0 2px 4px rgba(24,144,255,0.1);
+        }
+        
+        .host-item.selected { 
+            background: #e6f7ff; 
+            border-color: #1890ff; 
+        }
+        
+        .host-item.busy { 
+            opacity: 0.6;
+            cursor: not-allowed; 
+        }
+        
+        .host-info { 
+            flex: 1; 
+        }
+        
+        .host-name { 
+            font-weight: 600; 
+            color: #262626;
+            margin-bottom: 4px;
+        }
+        
+        .host-meta { 
+            font-size: 12px; 
+            color: #8c8c8c; 
+        }
+        
+        .host-actions { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 4px; 
+        }
+        
+        .host-switch-container {
+            position: absolute;
+            top: 8px;
+            right: 80px;
+            z-index: 100;
+        }
+        
+        .power-switch {
+            width: 50px;
+            height: 28px;
+            background: linear-gradient(145deg, #f0f0f0, #d0d0d0);
+            border: 2px solid #999;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+            user-select: none;
+        }
+        
+        .power-switch:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        .power-switch.active {
+            background: linear-gradient(145deg, #4CAF50, #45a049);
+            color: white;
+            border-color: #45a049;
+        }
+        
+        .power-switch:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .host-action-btn { 
+            padding: 4px 8px; 
+            font-size: 10px; 
+            border: none; 
+            border-radius: 3px; 
+            cursor: pointer; 
+            min-width: 40px; 
+        }
+        
+        .edit-btn { 
+            background: #faad14; 
+            color: white; 
+        }
+        
+        .delete-btn { 
+            background: #ff4d4f; 
+            color: white; 
+        }
+        
+        .occupy-btn { 
+            background: #52c41a; 
+            color: white; 
+        }
+        
+        .release-btn { 
+            background: #722ed1; 
+            color: white; 
+        }
+        
+        .add-host-btn { 
+            width: 100%; 
+            padding: 12px; 
+            background: #1890ff; 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            margin-top: 15px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .add-host-btn:hover { 
+            background: #40a9ff; 
+        }
+        
+        .main { 
+            flex: 1; 
+            padding: 20px; 
+            overflow-y: auto; 
+            background: white;
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .section { 
+            margin-bottom: 30px; 
+        }
+        
+        .section h3 { 
+            margin-bottom: 15px; 
+            color: #262626;
+            font-size: 16px;
+        }
+        
+        .serial-list, .case-list { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 10px; 
+        }
+        
+        .serial-item, .case-item { 
+            background: #f6f6f6; 
+            border: 1px solid #e8e8e8; 
+            border-radius: 4px; 
+            padding: 8px 12px; 
+        }
+        
+        .case-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+        }
+        
+        .case-item button { 
+            padding: 4px 8px;
+            background: #1890ff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .actions { 
+            margin-top: 15px; 
+        }
+        
+        .actions button {
+            padding: 8px 16px;
+            background: #52c41a;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .log-area { 
+            width: 100%; 
+            height: 400px; 
+            background: #1f1f1f; 
+            color: #00ff00; 
+            font-family: 'Consolas', monospace; 
+            font-size: 12px; 
+            border-radius: 4px; 
+            padding: 10px; 
+            margin-top: 10px; 
+            overflow-y: auto; 
+            border: 1px solid #e8e8e8;
+        }
+        
+        .download-btn { 
+            margin-top: 10px; 
+            padding: 8px 16px;
+            background: #722ed1;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .log-success { color: #52c41a; }
+        .log-error { color: #ff4d4f; }
+        .log-command { color: #1890ff; }
+        .log-info { color: #faad14; }
+        
+        .modal { 
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.5); 
+        }
+        
+        .modal-content { 
+            background: white; 
+            margin: 10% auto; 
+            padding: 24px; 
+            border-radius: 8px;
+            width: 450px; 
+            max-width: 90%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px; 
+            border-bottom: 1px solid #e8e8e8;
+            padding-bottom: 15px;
+        }
+        
+        .modal-header h3 { 
+            margin: 0; 
+            color: #262626;
+        }
+        
+        .close { 
+            color: #8c8c8c; 
+            font-size: 24px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .close:hover { 
+            background: #f5f5f5;
+            color: #262626; 
+        }
+        
+        .form-group { 
+            margin-bottom: 16px; 
+        }
+        
+        .form-group label { 
+            display: block; 
+            margin-bottom: 6px; 
+            font-weight: 500; 
+            color: #262626;
+        }
+        
+        .form-group input, .form-group select { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid #d9d9d9; 
+            border-radius: 4px; 
+            font-size: 14px;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            border-color: #1890ff;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(24,144,255,0.2);
+        }
+        
+        .form-actions { 
+            display: flex; 
+            justify-content: flex-end; 
+            gap: 12px; 
+            margin-top: 24px; 
+        }
+        
+        .btn { 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 14px; 
+            font-weight: 500;
+        }
+        
+        .btn-primary { 
+            background: #1890ff; 
+            color: white; 
+        }
+        
+        .btn-primary:hover { 
+            background: #40a9ff; 
+        }
+        
+        .btn-secondary { 
+            background: white; 
+            color: #595959; 
+            border: 1px solid #d9d9d9; 
+        }
+        
+        .btn-secondary:hover { 
+            border-color: #1890ff;
+            color: #1890ff; 
+        }
+        
+        .message { 
+            padding: 12px; 
+            margin: 15px 0; 
+            border-radius: 4px; 
+            display: none; 
+        }
+        
+        .message.success { 
+            background: #f6ffed; 
+            border: 1px solid #b7eb8f; 
+            color: #52c41a; 
+        }
+        
+        .message.error { 
+            background: #fff2f0; 
+            border: 1px solid #ffccc7; 
+            color: #ff4d4f; 
+        }
+        
+        .empty-tip {
+            color: #8c8c8c; 
+            font-size: 16px; 
+            text-align: center; 
+            margin-top: 100px;
+            line-height: 1.6;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #8c8c8c;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>🖥️ 可用电脑</h2>
+        <div class="controls">
+            <button onclick="refreshHosts()">🔄 刷新</button>
+            <label style="font-size: 12px;">
+                <input type="checkbox" id="autoRefresh"> 自动刷新
+            </label>
+        </div>
+        <ul class="host-list" id="hostList">
+            <li class="loading">加载中...</li>
+        </ul>
+        <button class="add-host-btn" onclick="showAddHostModal()">➕ 添加电脑</button>
+    </div>
+    
+    <!-- 添加电脑弹窗 -->
+    <div id="addHostModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加电脑</h3>
+                <span class="close" onclick="hideAddHostModal()">&times;</span>
+            </div>
+            <div id="modalMessage" class="message"></div>
+            <form id="addHostForm">
+                <div class="form-group">
+                    <label for="hostName">电脑名称 *</label>
+                    <input type="text" id="hostName" name="name" required placeholder="例如：测试机01">
+                </div>
+                <div class="form-group">
+                    <label for="hostIp">IP地址 *</label>
+                    <input type="text" id="hostIp" name="ip" required placeholder="例如：192.168.1.100">
+                </div>
+                <div class="form-group">
+                    <label for="hostLocation">位置</label>
+                    <input type="text" id="hostLocation" name="location" placeholder="例如：办公室A区">
+                </div>
+                <div class="form-group">
+                    <label for="hostType">类型</label>
+                    <select id="hostType" name="type">
+                        <option value="manual">手动添加</option>
+                        <option value="auto">自动发现</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="hideAddHostModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 编辑电脑弹窗 -->
+    <div id="editHostModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>编辑电脑</h3>
+                <span class="close" onclick="hideEditHostModal()">&times;</span>
+            </div>
+            <div id="editModalMessage" class="message"></div>
+            <form id="editHostForm">
+                <div class="form-group">
+                    <label for="editHostName">电脑名称 *</label>
+                    <input type="text" id="editHostName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="editHostIp">IP地址</label>
+                    <input type="text" id="editHostIp" name="ip" readonly style="background: #f5f5f5;">
+                </div>
+                <div class="form-group">
+                    <label for="editHostLocation">位置</label>
+                    <input type="text" id="editHostLocation" name="location">
+                </div>
+                <div class="form-group">
+                    <label for="editHostType">类型</label>
+                    <select id="editHostType" name="type">
+                        <option value="manual">手动添加</option>
+                        <option value="auto">自动发现</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="hideEditHostModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="main">
+        <div id="hostDetail" style="display:none;">
+            <div class="section">
+                <h3>📋 主机信息</h3>
+                <div id="hostInfo"></div>
+                <div class="actions" style="margin-top: 10px;">
+                    <button id="releaseMachineBtn" onclick="releaseCurrentMachine()" style="background: #ff4d4f; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">释放测试机</button>
+                </div>
+            </div>
+            <div class="section">
+                <h3>🔌 串口列表</h3>
+                <div class="serial-list" id="serialList"></div>
+            </div>
+            <div class="section">
+                <h3>🧪 测试用例</h3>
+                <div class="case-list" id="caseList"></div>
+                <div class="actions">
+                    <button id="runAllBtn">▶️ 全部测试</button>
+                </div>
+            </div>
+            <div class="section">
+                <h3>📝 日志输出</h3>
+                <div class="log-area" id="logArea">等待测试...</div>
+                <button class="download-btn" id="downloadReportBtn">📥 下载报告</button>
+            </div>
+        </div>
+        <div id="emptyTip" class="empty-tip">
+            请选择左侧空闲电脑进行测试<br>
+            <small>💡 点击"添加电脑"可以手动添加测试机</small>
+        </div>
+    </div>
+    
+    <script>
+        // API配置
+        function getApiBase() {
+            return 'http://localhost:5002/api';
+        }
+
+        const API_BASE = getApiBase();
+        
+        // 全局变量
+        let hosts = [];
+        let selectedHostIdx = null;
+        let selectedSerial = null;
+        let serials = [];
+        let cases = [];
+        let currentEditingHost = null;
+        let refreshInterval;
+        let currentUserId = null;
+        let currentMachineIp = null;
+        let heartbeatInterval = null;
+
+        // 页面关闭时释放测试机
+        window.addEventListener('beforeunload', function() {
+            if (currentMachineIp) {
+                // 使用同步请求确保释放操作完成
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', `${API_BASE}/hosts/${currentMachineIp}/release`, false);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send();
+            }
+        });
+
+        // 开始心跳
+        function startHeartbeat(machineIp) {
+            if (heartbeatInterval) {
+                clearInterval(heartbeatInterval);
+            }
+            
+            heartbeatInterval = setInterval(() => {
+                fetch(`${API_BASE}/hosts/${machineIp}/heartbeat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.success) {
+                        console.warn('心跳更新失败:', data.error);
+                        // 如果心跳失败，可能需要重新获取测试机
+                        stopHeartbeat();
+                        currentMachineIp = null;
+                        fetchHosts(); // 刷新主机列表
+                    }
+                })
+                .catch(e => {
+                    console.error('心跳请求失败:', e);
+                });
+            }, 30000); // 每30秒发送一次心跳
+        }
+
+        // 停止心跳
+        function stopHeartbeat() {
+            if (heartbeatInterval) {
+                clearInterval(heartbeatInterval);
+                heartbeatInterval = null;
+            }
+        }
+
+        // 获取测试机使用权
+        function acquireMachine(machineIp, callback) {
+            fetch(`${API_BASE}/hosts/${machineIp}/acquire`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    currentMachineIp = machineIp;
+                    currentUserId = data.user_id;
+                    startHeartbeat(machineIp);
+                    callback(true, data.message);
+                } else {
+                    callback(false, data.error);
+                }
+            })
+            .catch(e => {
+                callback(false, `请求失败: ${e}`);
+            });
+        }
+
+        // 释放测试机使用权
+        function releaseMachine(machineIp, callback) {
+            fetch(`${API_BASE}/hosts/${machineIp}/release`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                stopHeartbeat();
+                currentMachineIp = null;
+                currentUserId = null;
+                if (callback) callback(data.success, data.message);
+            })
+            .catch(e => {
+                stopHeartbeat();
+                currentMachineIp = null;
+                currentUserId = null;
+                if (callback) callback(false, `请求失败: ${e}`);
+            });
+        }
+
+        // 获取当前用户ID
+        // 获取主机列表
+        function fetchHosts() {
+            const list = document.getElementById('hostList');
+            list.innerHTML = '<li class="loading">加载中...</li>';
+            
+            fetch(`${API_BASE}/hosts`)
+                .then(res => {
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    return res.json();
+                })
+                .then(data => {
+                    hosts = data;
+                    renderHostList();
+                    renderHostDetail();
+                })
+                .catch(error => {
+                    console.error('获取主机列表失败:', error);
+                    list.innerHTML = `<li style="color:#ff4d4f;text-align:center;padding:20px;">加载失败: ${error.message}</li>`;
+                });
+        }
+
+        // 获取串口和用例
+        function fetchSerialsAndCases(ip, callback) {
+            Promise.all([
+                fetch(`${API_BASE}/host/${ip}/serials`).then(res => res.json()),
+                fetch(`${API_BASE}/host/${ip}/cases`).then(res => res.json())
+            ]).then(([serialList, caseList]) => {
+                serials = serialList;
+                cases = caseList;
+                callback && callback();
+            }).catch(error => {
+                console.error('获取串口/用例失败:', error);
+                serials = [];
+                cases = [];
+                callback && callback();
+            });
+        }
+
+        // 渲染主机列表
+        function renderHostList() {
+            const list = document.getElementById('hostList');
+            list.innerHTML = '';
+            
+            if (hosts.length === 0) {
+                list.innerHTML = '<li style="text-align:center;color:#8c8c8c;padding:20px;">暂无电脑</li>';
+                return;
+            }
+            
+            hosts.forEach((host, idx) => {
+                const li = document.createElement('li');
+                // 根据测试机状态设置样式
+                let statusClass = '';
+                if (host.is_busy || host.machine_status === 'busy') {
+                    statusClass = ' busy';
+                }
+                
+                li.className = 'host-item' + statusClass + 
+                    (selectedHostIdx === idx ? ' selected' : '');
+                
+                // 手动占用/释放开关
+                let manualOccupyHtml = '';
+                if (host.status === '在线') {
+                    const isManuallyOccupied = host.session_info && host.session_info.test_case === 'manual_occupy';
+                    const isOccupiedByCurrentUser = host.session_info && host.session_info.user_id === currentUserId;
+                    
+                    if (isManuallyOccupied && isOccupiedByCurrentUser) {
+                        // 当前用户手动占用中，显示释放按钮
+                        manualOccupyHtml = `
+                            <button class="host-action-btn release-btn" onclick="manualReleaseMachine('${host.ip}')" title="释放占用">释放</button>
+                        `;
+                    } else if (!host.is_busy) {
+                        // 空闲状态，显示占用按钮
+                        manualOccupyHtml = `
+                            <button class="host-action-btn occupy-btn" onclick="manualOccupyMachine('${host.ip}')" title="手动占用">占用</button>
+                        `;
+                    }
+                }
+                
+                const editActionsHtml = host.type === '手动添加' ? `
+                    <button class="host-action-btn edit-btn" onclick="showEditHostModal('${host.ip}')" title="编辑">编辑</button>
+                    <button class="host-action-btn delete-btn" onclick="deleteHost('${host.ip}')" title="删除">删除</button>
+                ` : '';
+                
+                const actionsHtml = (manualOccupyHtml || editActionsHtml) ? `
+                    <div class="host-actions">
+                        ${manualOccupyHtml}
+                        ${editActionsHtml}
+                    </div>
+                ` : '';
+                
+                // 显示测试机状态信息
+                let statusInfo = host.status; // 在线/离线状态
+                if (host.is_busy && host.session_info) {
+                    if (host.session_info.test_case === 'manual_occupy') {
+                        statusInfo += ` (手动占用 - ${host.session_info.user_id.substring(0, 8)}...)`;
+                    } else {
+                        statusInfo += ` (忙碌 - ${host.session_info.user_id.substring(0, 8)}...)`;
+                    }
+                }
+                
+                li.innerHTML = `
+                    <div class="host-switch-container">
+                        <div class="power-switch" onclick="toggleHostSwitch('${host.ip}', event)" title="开关控制">OFF</div>
+                    </div>
+                    <div class="host-info">
+                        <div class="host-name">${host.name}</div>
+                        <div class="host-meta">${host.ip} | ${host.location} | ${statusInfo}</div>
+                    </div>
+                    ${actionsHtml}
+                `;
+                
+                // 只有空闲且在线的测试机才能点击
+                if (!host.is_busy && host.status === '在线') {
+                    li.onclick = (e) => {
+                        if (e.target.classList.contains('host-action-btn')) return;
+                        
+                        // 如果当前已经占用了其他测试机，先释放
+                        if (currentMachineIp && currentMachineIp !== host.ip) {
+                            releaseMachine(currentMachineIp, () => {
+                                // 释放完成后获取新的测试机
+                                acquireAndSelectMachine(host, idx);
+                            });
+                        } else if (currentMachineIp === host.ip) {
+                            // 如果点击的是当前已占用的测试机，直接选择
+                            selectedHostIdx = idx;
+                            fetchSerialsAndCases(host.ip, () => {
+                                renderHostList();
+                                renderHostDetail();
+                            });
+                        } else {
+                            // 获取新的测试机使用权
+                            acquireAndSelectMachine(host, idx);
+                        }
+                    };
+                } else {
+                    // 忙碌或离线的测试机显示提示
+                    li.onclick = (e) => {
+                        if (e.target.classList.contains('host-action-btn')) return;
+                        if (host.is_busy) {
+                            alert('该测试机正在被其他用户使用中，请稍后再试');
+                        } else if (host.status === '离线') {
+                            alert('该测试机当前离线，无法使用');
+                        }
+                    };
+                    li.style.cursor = 'not-allowed';
+                }
+                
+                // 获取并选择测试机的辅助函数
+                function acquireAndSelectMachine(host, idx) {
+                    acquireMachine(host.ip, (success, message) => {
+                        if (success) {
+                            selectedHostIdx = idx;
+                            fetchSerialsAndCases(host.ip, () => {
+                                renderHostList();
+                                renderHostDetail();
+                            });
+                        } else {
+                            alert(`无法获取测试机使用权: ${message}`);
+                            fetchHosts(); // 刷新主机列表状态
+                        }
+                    });
+                }
+                list.appendChild(li);
+            });
+        }
+
+        // 渲染主机详情
+        function renderHostDetail() {
+            const detail = document.getElementById('hostDetail');
+            const tip = document.getElementById('emptyTip');
+            
+            if (selectedHostIdx === null) {
+                detail.style.display = 'none';
+                tip.style.display = 'block';
+                return;
+            }
+            
+            const host = hosts[selectedHostIdx];
+            detail.style.display = 'block';
+            tip.style.display = 'none';
+            
+            document.getElementById('hostInfo').innerHTML = `
+                <strong>名称：</strong>${host.name} &nbsp;&nbsp;
+                <strong>IP：</strong>${host.ip} &nbsp;&nbsp;
+                <strong>位置：</strong>${host.location} &nbsp;&nbsp;
+                <strong>状态：</strong><span style="color:${host.status === '空闲' ? '#52c41a' : '#ff4d4f'}">${host.status}</span>
+            `;
+            
+            // 渲染串口
+            const serialList = document.getElementById('serialList');
+            serialList.innerHTML = '';
+            if (serials.length === 0) {
+                serialList.innerHTML = '<span style="color:#8c8c8c">无可用串口</span>';
+                selectedSerial = null;
+            } else {
+                selectedSerial = serials[0];
+                serials.forEach(s => {
+                    const div = document.createElement('div');
+                    div.className = 'serial-item';
+                    div.innerHTML = `📡 ${s}`;
+                    serialList.appendChild(div);
+                });
+            }
+            
+            // 渲染用例
+            const caseList = document.getElementById('caseList');
+            caseList.innerHTML = '';
+            if (cases.length === 0) {
+                caseList.innerHTML = '<span style="color:#8c8c8c">无测试用例</span>';
+            } else {
+                cases.forEach((c, i) => {
+                    const div = document.createElement('div');
+                    div.className = 'case-item';
+                    div.innerHTML = `
+                        <input type="checkbox" id="case${i}">
+                        <label for="case${i}">${c}</label>
+                        <button onclick="runCase('${host.ip}', '${selectedSerial}', '${c}')">测试</button>
+                    `;
+                    caseList.appendChild(div);
+                });
+            }
+            
+            document.getElementById('runAllBtn').onclick = () => runAllCases(host.ip, selectedSerial, cases);
+            document.getElementById('downloadReportBtn').onclick = downloadReport;
+            document.getElementById('logArea').textContent = '等待测试...';
+        }
+
+        // 运行单个用例
+        function runCase(ip, serial, caseName) {
+            const log = document.getElementById('logArea');
+            if (!serial) {
+                log.innerHTML = '<span class="log-error">❌ 请先选择串口</span>';
+                return;
+            }
+            
+            // 检查是否已获取测试机使用权
+            if (currentMachineIp !== ip) {
+                log.innerHTML = '<span class="log-error">❌ 请先选择测试机</span>';
+                return;
+            }
+            
+            log.innerHTML = `<span class="log-command">🚀 正在启动测试：${caseName} @ ${serial}...</span>`;
+            
+            fetch(`${API_BASE}/hosts/${ip}/run_case`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ case: caseName, serial: serial })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.test_id) {
+                    log.innerHTML += `<br><span class="log-info">📋 测试ID: ${data.test_id}</span>`;
+                    log.innerHTML += `<br><span class="log-info">⏳ 测试状态: ${data.status}</span>`;
+                    
+                    // 开始轮询测试状态
+                    pollTestStatus(ip, data.test_id, log);
+                } else {
+                    log.innerHTML += `<br><span class="log-error">❌ 启动失败：${data.error || '未知错误'}</span>`;
+                    // 如果是测试机被占用的错误，刷新主机列表
+                    if (data.error && data.error.includes('无法获取测试机')) {
+                        fetchHosts();
+                    }
+                }
+                log.scrollTop = log.scrollHeight;
+            })
+            .catch(e => {
+                log.innerHTML += `<br><span class="log-error">❌ 请求失败：${e}</span>`;
+                log.scrollTop = log.scrollHeight;
+            });
+        }
+
+        // 轮询测试状态
+        function pollTestStatus(ip, testId, logElement) {
+            const pollInterval = setInterval(() => {
+                fetch(`${API_BASE}/host/${ip}/test_status/${testId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            const testInfo = data.data;
+                            
+                            // 更新日志显示
+                            let logContent = `<span class="log-command">🚀 测试：${testInfo.case} @ ${testInfo.serial}</span><br>`;
+                            logContent += `<span class="log-info">📋 测试ID: ${testInfo.id}</span><br>`;
+                            logContent += `<span class="log-info">⏰ 开始时间: ${testInfo.start_time}</span><br>`;
+                            logContent += `<span class="log-info">📊 状态: ${testInfo.status}</span><br><br>`;
+                            
+                            // 添加日志内容
+                            if (testInfo.logs && testInfo.logs.length > 0) {
+                                logContent += '<span class="log-info">📝 执行日志:</span><br>';
+                                testInfo.logs.forEach(logLine => {
+                                    logContent += formatLogOutput(logLine) + '<br>';
+                                });
+                            }
+                            
+                            // 如果有测试结果，显示结果
+                            if (testInfo.result) {
+                                logContent += '<br><span class="log-info">📊 测试结果:</span><br>';
+                                logContent += formatLogOutput(JSON.stringify(testInfo.result, null, 2));
+                            }
+                            
+                            // 如果测试完成，显示结束时间
+                            if (testInfo.end_time) {
+                                logContent += `<br><span class="log-info">⏰ 结束时间: ${testInfo.end_time}</span>`;
+                            }
+                            
+                            logElement.innerHTML = logContent;
+                            logElement.scrollTop = logElement.scrollHeight;
+                            
+                            // 如果测试完成，停止轮询
+                            if (testInfo.status !== 'running') {
+                                clearInterval(pollInterval);
+                                
+                                if (testInfo.status === 'completed') {
+                                    logElement.innerHTML += '<br><span class="log-success">✅ 测试完成</span>';
+                                } else if (testInfo.status === 'error') {
+                                    logElement.innerHTML += '<br><span class="log-error">❌ 测试失败</span>';
+                                } else if (testInfo.status === 'timeout') {
+                                    logElement.innerHTML += '<br><span class="log-error">⏰ 测试超时</span>';
+                                }
+                                logElement.scrollTop = logElement.scrollHeight;
+                            }
+                        } else {
+                            clearInterval(pollInterval);
+                            logElement.innerHTML += `<br><span class="log-error">❌ 获取状态失败：${data.error}</span>`;
+                            logElement.scrollTop = logElement.scrollHeight;
+                        }
+                    })
+                    .catch(e => {
+                        clearInterval(pollInterval);
+                        logElement.innerHTML += `<br><span class="log-error">❌ 状态查询失败：${e}</span>`;
+                        logElement.scrollTop = logElement.scrollHeight;
+                    });
+            }, 500); // 改为每0.5秒轮询一次，实现更实时的显示
+        }
+
+        // 改进的格式化日志输出函数
+        function formatLogOutput(logText) {
+            if (!logText) return '';
+            
+            let formatted = logText
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+            
+            // 根据日志级别添加不同的样式
+            formatted = formatted
+                .replace(/\[(\d{2}:\d{2}:\d{2})\]/g, '<span style="color: #666; font-size: 11px;">[$1]</span>')
+                .replace(/\[INFO\]/g, '<span class="log-info">[INFO]</span>')
+                .replace(/\[SUCCESS\]/g, '<span class="log-success">[SUCCESS]</span>')
+                .replace(/\[ERROR\]/g, '<span class="log-error">[ERROR]</span>')
+                .replace(/\[WARN\]/g, '<span style="color: #faad14;">[WARN]</span>')
+                .replace(/✅[^<\n]*/g, '<span class="log-success">$&</span>')
+                .replace(/❌[^<\n]*/g, '<span class="log-error">$&</span>')
+                .replace(/⚠️[^<\n]*/g, '<span style="color: #faad14;">$&</span>')
+                .replace(/🚀[^<\n]*/g, '<span class="log-command">$&</span>')
+                .replace(/通过|成功|PASS|SUCCESS/gi, '<span class="log-success">$&</span>')
+                .replace(/失败|错误|FAIL|ERROR/gi, '<span class="log-error">$&</span>')
+                .replace(/警告|WARN/gi, '<span style="color: #faad14;">$&</span>')
+                .replace(/\n/g, '<br>')
+                .replace(/收到请求:.+/g, '<span class="log-command">$&</span>');
+            
+            return formatted;
+        }
+
+        // 运行所有用例
+        function runAllCases(ip, serial, cases) {
+            const log = document.getElementById('logArea');
+            if (!serial) {
+                log.innerHTML = '<span class="log-error">❌ 请先选择串口</span>';
+                return;
+            }
+            
+            log.innerHTML = '<span class="log-info">🔄 正在批量执行所有用例...</span><br>';
+            let idx = 0;
+            
+            function next() {
+                if (idx >= cases.length) {
+                    log.innerHTML += '<br><span class="log-success">✅ 全部完成</span>';
+                    return;
+                }
+                
+                log.innerHTML += `<br><span class="log-command">🚀 执行：${cases[idx]} @ ${serial}...</span>`;
+                
+                fetch(`${API_BASE}/host/${ip}/run_case`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ case: cases[idx], serial: serial })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    const logContent = data.log || JSON.stringify(data);
+                    log.innerHTML += '<br>' + formatLogOutput(logContent);
+                    log.scrollTop = log.scrollHeight;
+                    idx++;
+                    next();
+                })
+                .catch(e => {
+                    log.innerHTML += `<br><span class="log-error">❌ 请求失败：${e}</span>`;
+                    log.scrollTop = log.scrollHeight;
+                    idx++;
+                    next();
+                });
+            }
+            next();
+        }
+
+        // 下载报告
+        function downloadReport() {
+            alert('📥 模拟下载测试报告');
+        }
+
+        // 显示添加主机弹窗
+        function showAddHostModal() {
+            document.getElementById('addHostModal').style.display = 'block';
+            document.getElementById('addHostForm').reset();
+            hideMessage('modalMessage');
+        }
+
+        // 隐藏添加主机弹窗
+        function hideAddHostModal() {
+            document.getElementById('addHostModal').style.display = 'none';
+        }
+
+        // 显示编辑主机弹窗
+        function showEditHostModal(ip) {
+            const host = hosts.find(h => h.ip === ip);
+            if (!host) return;
+            
+            currentEditingHost = host;
+            document.getElementById('editHostName').value = host.name;
+            document.getElementById('editHostIp').value = host.ip;
+            document.getElementById('editHostLocation').value = host.location || '';
+            document.getElementById('editHostType').value = host.type || 'manual';
+            
+            document.getElementById('editHostModal').style.display = 'block';
+            hideMessage('editModalMessage');
+        }
+
+        // 隐藏编辑主机弹窗
+        function hideEditHostModal() {
+            document.getElementById('editHostModal').style.display = 'none';
+            currentEditingHost = null;
+        }
+
+        // 显示消息
+        function showMessage(elementId, message, type) {
+            const msgEl = document.getElementById(elementId);
+            msgEl.textContent = message;
+            msgEl.className = `message ${type}`;
+            msgEl.style.display = 'block';
+            
+            if (type === 'success') {
+                setTimeout(() => hideMessage(elementId), 3000);
+            }
+        }
+
+        // 隐藏消息
+        function hideMessage(elementId) {
+            document.getElementById(elementId).style.display = 'none';
+        }
+
+        // 删除主机
+        function deleteHost(ip) {
+            const host = hosts.find(h => h.ip === ip);
+            if (!host) return;
+            
+            if (!confirm(`确定要删除电脑 "${host.name}" (${ip}) 吗？`)) return;
+            
+            fetch(`${API_BASE}/host/${ip}`, { method: 'DELETE' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('✅ ' + data.message);
+                        refreshHosts();
+                    } else {
+                        alert('❌ 删除失败：' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('删除主机失败:', error);
+                    alert('❌ 删除失败：网络错误');
+                });
+        }
+
+        // 刷新主机列表
+        function refreshHosts() {
+            fetchHosts();
+            if (selectedHostIdx !== null && hosts[selectedHostIdx]) {
+                const host = hosts[selectedHostIdx];
+                fetchSerialsAndCases(host.ip, () => {
+                    renderHostList();
+                    renderHostDetail();
+                });
+            }
+        }
+
+        // 事件监听器
+        document.getElementById('autoRefresh').addEventListener('change', function(e) {
+            if (e.target.checked) {
+                refreshInterval = setInterval(refreshHosts, 5000);
+            } else {
+                clearInterval(refreshInterval);
+            }
+        });
+
+        // 添加主机表单提交
+        document.getElementById('addHostForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const hostData = {
+                name: formData.get('name').trim(),
+                ip: formData.get('ip').trim(),
+                location: formData.get('location').trim() || '未知',
+                type: formData.get('type')
+            };
+            
+            if (!hostData.name || !hostData.ip) {
+                showMessage('modalMessage', '请填写必需字段', 'error');
+                return;
+            }
+            
+            const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+            if (!ipPattern.test(hostData.ip)) {
+                showMessage('modalMessage', 'IP地址格式不正确', 'error');
+                return;
+            }
+            
+            fetch(`${API_BASE}/hosts`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(hostData)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('modalMessage', data.message, 'success');
+                    setTimeout(() => {
+                        hideAddHostModal();
+                        refreshHosts();
+                    }, 1500);
+                } else {
+                    showMessage('modalMessage', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('添加主机失败:', error);
+                showMessage('modalMessage', '添加失败：网络错误', 'error');
+            });
+        });
+
+        // 编辑主机表单提交
+        document.getElementById('editHostForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!currentEditingHost) return;
+            
+            const formData = new FormData(this);
+            const hostData = {
+                name: formData.get('name').trim(),
+                location: formData.get('location').trim() || '未知',
+                type: formData.get('type')
+            };
+            
+            if (!hostData.name) {
+                showMessage('editModalMessage', '请填写电脑名称', 'error');
+                return;
+            }
+            
+            fetch(`${API_BASE}/host/${currentEditingHost.ip}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(hostData)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('editModalMessage', data.message, 'success');
+                    setTimeout(() => {
+                        hideEditHostModal();
+                        refreshHosts();
+                    }, 1500);
+                } else {
+                    showMessage('editModalMessage', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('编辑主机失败:', error);
+                showMessage('editModalMessage', '更新失败：网络错误', 'error');
+            });
+        });
+
+        // 点击弹窗外部关闭
+        window.onclick = function(event) {
+            const addModal = document.getElementById('addHostModal');
+            const editModal = document.getElementById('editHostModal');
+            
+            if (event.target === addModal) hideAddHostModal();
+            if (event.target === editModal) hideEditHostModal();
+        }
+
+        // 切换主机开关状态
+        function toggleHostSwitch(ip, event) {
+            // 阻止事件冒泡，避免触发卡片点击事件
+            event.stopPropagation();
+            
+            const switchElement = event.target;
+            const isActive = switchElement.classList.contains('active');
+            
+            // 切换开关状态
+            if (isActive) {
+                switchElement.classList.remove('active');
+                switchElement.textContent = 'OFF';
+                console.log(`主机 ${ip} 开关已关闭`);
+                // 这里可以添加关闭开关时的逻辑
+                handleSwitchOff(ip);
+            } else {
+                switchElement.classList.add('active');
+                switchElement.textContent = 'ON';
+                console.log(`主机 ${ip} 开关已开启`);
+                // 这里可以添加开启开关时的逻辑
+                handleSwitchOn(ip);
+            }
+        }
+        
+        // 处理开关开启
+        function handleSwitchOn(ip) {
+            // 可以在这里添加开关开启时的具体逻辑
+            // 例如：启用某个功能、发送API请求等
+            console.log(`执行主机 ${ip} 开关开启逻辑`);
+        }
+        
+        // 处理开关关闭
+        function handleSwitchOff(ip) {
+            // 可以在这里添加开关关闭时的具体逻辑
+            // 例如：禁用某个功能、发送API请求等
+            console.log(`执行主机 ${ip} 开关关闭逻辑`);
+        }
+
+        // 手动占用测试机
+        function manualOccupyMachine(ip) {
+            if (!confirm(`确定要手动占用测试机 ${ip} 吗？\n手动占用后，其他用户将无法使用该测试机，直到您手动释放。`)) {
+                return;
+            }
+            
+            fetch(`${API_BASE}/host/${ip}/manual_occupy`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include', // 包含cookies以维持会话
+                body: JSON.stringify({})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                    fetchHosts(); // 刷新主机列表
+                } else {
+                    alert('❌ 占用失败：' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('手动占用失败:', error);
+                alert('❌ 占用失败：网络错误');
+            });
+        }
+
+        // 手动释放测试机
+        function manualReleaseMachine(ip) {
+            if (!confirm(`确定要释放测试机 ${ip} 的手动占用吗？`)) {
+                return;
+            }
+            
+            fetch(`${API_BASE}/host/${ip}/manual_release`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include', // 包含cookies以维持会话
+                body: JSON.stringify({})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                    fetchHosts(); // 刷新主机列表
+                } else {
+                    alert('❌ 释放失败：' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('手动释放失败:', error);
+                alert('❌ 释放失败：网络错误');
+            });
+        }
+
+        // 释放当前测试机
+        function releaseCurrentMachine() {
+            if (!currentMachineIp) {
+                alert('当前没有占用的测试机');
+                return;
+            }
+            
+            if (!confirm('确定要释放当前测试机吗？')) {
+                return;
+            }
+            
+            releaseMachine(currentMachineIp, (success, message) => {
+                if (success) {
+                    alert('✅ ' + message);
+                    // 刷新主机列表
+                    fetchHosts();
+                    // 清空主机详情
+                    document.getElementById('hostDetail').style.display = 'none';
+                    document.getElementById('emptyTip').style.display = 'block';
+                    selectedHostIdx = null;
+                } else {
+                    alert('❌ 释放失败：' + message);
+                }
+            });
+        }
+
+        // 自动登录
+        function autoLogin() {
+            // 生成设备指纹
+            function generateDeviceFingerprint() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
+            
+            const deviceFingerprint = generateDeviceFingerprint();
+            console.log('尝试自动登录，设备指纹:', deviceFingerprint);
+            
+            fetch(`${API_BASE}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include', // 包含cookies以维持会话
+                body: JSON.stringify({
+                    password: '123456',
+                    device_fingerprint: deviceFingerprint
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('自动登录成功:', data.user_id);
+                    currentUserId = data.user_id;
+                } else {
+                    console.error('自动登录失败:', data.error);
+                    // 生成临时用户ID
+                    currentUserId = generateDeviceFingerprint().substring(0, 12);
+                    console.log('使用临时用户ID:', currentUserId);
+                }
+                // 登录成功或失败后都获取主机列表
+                fetchHosts();
+            })
+            .catch(error => {
+                console.error('自动登录请求失败:', error);
+                // 生成临时用户ID
+                currentUserId = generateDeviceFingerprint().substring(0, 12);
+                console.log('使用临时用户ID:', currentUserId);
+                // 即使登录失败也尝试获取主机列表
+                fetchHosts();
+            });
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', autoLogin);
+    </script>
+</body>
+</html>
