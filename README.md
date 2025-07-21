@@ -6,11 +6,7 @@ Enterprise Test Platform 是一个企业级测试平台，集成了AI记忆系�
 
 ## ✨ 核心功能
 
-### 🧠 AI记忆系统
-- **智能记忆存储**: 自动保存重要对话和知识点
-- **快速记忆恢复**: 通过触发词快速恢复历史记忆
-- **上下文关联**: 智能关联项目相关信息
-- **知识点管理**: 结构化存储技术要点和解决方案
+
 
 ### 🔧 MCP集成服务
 - **多协议支持**: 支持多种MCP协议和服务
@@ -77,32 +73,13 @@ Enterprise Test Platform/
 │   ├── core/                    # 核心路由
 │   ├── dashboard/               # 仪表板
 │   └── static/                  # 静态资源
-├── ai_memory_manager.py         # AI记忆管理
-├── memory_recovery_trigger.py   # 记忆恢复触发器
-├── memory_save_trigger.py       # 记忆保存触发器
+
 ├── center_api.py               # 中心API服务
 ├── new_agent.py                # Agent服务
 └── requirements.txt            # 依赖包列表
 ```
 
-## 🧠 AI记忆系统使用
 
-### 记忆恢复
-在对话中直接说出触发词：
-- "恢复记忆"
-- "回忆一下"
-- "之前我们聊过"
-
-### 记忆保存
-在对话中说出保存触发词：
-- "记录记忆"
-- "保存记忆"
-- "存储记忆"
-
-### 数据库位置
-```
-D:\AI_Memory_Database\ai_memory.db
-```
 
 ## 🔧 配置说明
 

@@ -160,7 +160,7 @@ backup_archive/
 *.temp
 
 # AI Memory Database (sensitive data)
-D:/AI_Memory_Database/
+
 *.db
 
 # Docker
