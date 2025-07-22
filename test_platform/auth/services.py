@@ -3,8 +3,8 @@ import os
 from datetime import datetime, timedelta
 from functools import wraps
 from flask import request, jsonify, current_app
-from ..app import db
-from ..models import Device
+from database import db
+from models.device import Device
 import secrets
 
 def register_new_device(data):
@@ -99,4 +99,4 @@ def token_required(f):
             return jsonify({'message': 'Token is invalid!'}), 401
         
         return f(current_device, *args, **kwargs)
-    return decorated 
+    return decorated
