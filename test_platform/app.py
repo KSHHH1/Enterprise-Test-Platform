@@ -37,6 +37,7 @@ def create_app(config_name=None):
     from models.test_case import TestCase, TestSuite
     from models.firmware import Firmware, FirmwareDeployment
     from models.test_result import TestResult, TestExecution
+    from models.alert import Alert, AlertRule
 
     # 注册蓝图
     from core import bp as core_bp
@@ -54,6 +55,8 @@ def create_app(config_name=None):
     from api.devices import bp as devices_bp
     from api.system import bp as system_bp
     from api.dashboard import bp as api_dashboard_bp
+    from api.alerts import bp as alerts_bp
+    from api.reports import bp as reports_bp
     
     app.register_blueprint(core_bp)
     app.register_blueprint(auth_bp, url_prefix='/auth')
@@ -70,6 +73,8 @@ def create_app(config_name=None):
     app.register_blueprint(devices_bp, url_prefix='/api/devices')
     app.register_blueprint(system_bp, url_prefix='/api/system')
     app.register_blueprint(api_dashboard_bp, url_prefix='/api/dashboard')
+    app.register_blueprint(alerts_bp, url_prefix='/api/alerts')
+    app.register_blueprint(reports_bp, url_prefix='/api/reports')
 
     # 页面路由 - 重定向到React前端
     @app.route('/')
@@ -210,6 +215,12 @@ if __name__ == '__main__':
             db.session.add(admin_user)
             db.session.commit()
             print('Created default admin user: admin/admin123')
+    
+    # 初始化告警服务
+    from services.alert_service import alert_service
+    alert_service.set_app(app)
+    alert_service.set_socketio(socketio)
+    alert_service.start_monitoring()
     
     # 启动应用
     socketio.run(app, host='0.0.0.0', port=5002, debug=True)
